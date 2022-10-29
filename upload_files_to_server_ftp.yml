@@ -1,0 +1,28 @@
+on:
+  push:
+    branches:
+      - main
+name: 🚀 Deploy API on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
+
+      - name: 📂 Sync files in server
+        uses: SamKirkland/FTP-Deploy-Action@4.1.0
+        with:
+          server: 162.0.209.115
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          server-dir: /www.example.com/
+      - name: Notify
+        uses: fjogeleit/http-request-action@master
+        with:
+          url: 'https://fcm.googleapis.com/fcm/send'
+          method: 'POST'
+          contentType: 'application/json'
+          customHeaders: '{"Authorization":"${{secrets.SECRETS_PUSH_NOTIFICATIONS}}"}'
+          data: '{"to":"/topics/all", "notification": {"title" : "sheis api updated"}}'
